@@ -63,7 +63,7 @@ class CalendlyClient:
                 page_token = match_page_token.group(1)
 
         if the_filter is not None:
-            event_types = filter(the_filter, event_types)
+            event_types = list(filter(the_filter, event_types))
 
         return event_types
 

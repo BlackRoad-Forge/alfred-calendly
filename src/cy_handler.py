@@ -10,6 +10,7 @@ from helper import reset_workflow_config
 from workflow import Workflow3
 from workflow.notify import notify
 from controller import Controller
+from webhook_router import WebhookRouter
 
 log = None
 
@@ -32,16 +33,37 @@ def main(wf):
     # Open Calendly's Access Token Management Page in the Browser and return!
     if command == c.CMD_OBTAIN_ACCESS_TOKEN:
         webbrowser.open(c.CALENDLY_API_WEB_HOOKS_URL)
-        return 0;
+        return 0
+
     # Save the access token to Key Chain and return!
     elif command == c.CMD_SET_ACCESS_TOKEN:
         wf.save_password(c.ACCESS_TOKEN, query)
         notify(
-            "Personal Access Tolen saved to Keychain",
+            "Personal Access Token saved to Keychain",
             "This workflow can access Calendly now. Use 'cy' command to get started.")
-        return 0;
+        return 0
 
-    # Everything below only executes when an access tolen is set
+    # Save Stripe API key to Key Chain
+    elif command == c.CMD_SET_STRIPE_KEY:
+        wf.save_password(c.STRIPE_API_KEY, query)
+        notify(
+            "Stripe API Key saved to Keychain",
+            "Paid scheduling links are now enabled.")
+        return 0
+
+    # Add a Pi endpoint for webhook routing
+    elif command == c.CMD_SET_PI_ENDPOINT:
+        parts = query.strip().split(":")
+        host = parts[0]
+        port = int(parts[1]) if len(parts) > 1 else c.DEFAULT_PI_PORT
+        router = WebhookRouter(wf)
+        router.add_endpoint(host, port)
+        notify(
+            "Pi Endpoint Added",
+            "Webhooks will route to %s:%d" % (host, port))
+        return 0
+
+    # Everything below only executes when an access token is set
 
     controller = Controller(wf)
 
@@ -50,6 +72,17 @@ def main(wf):
         single_use_link = controller.create_single_use_link(query)
         store_in_clipboard(single_use_link)
         notify("Link stored in Clipboard", "%s" % single_use_link)
+
+    # Create Paid Link (Calendly + Stripe) and store in clipboard
+    elif command == c.CMD_PAID_LINK:
+        parts = query.strip().split(" ", 1)
+        event_type = parts[0]
+        amount_cents = controller.get_event_type_price(event_type) or 5000
+        result = controller.create_paid_link(event_type, amount_cents)
+        store_in_clipboard(result["payment_url"])
+        notify(
+            "Paid Link stored in Clipboard",
+            "Pay: %s | Book: %s" % (result["payment_url"], result["calendly_link"]))
 
     # Open static URL of Event Type in Browser
     elif command == c.CMD_BROWSE_URL:

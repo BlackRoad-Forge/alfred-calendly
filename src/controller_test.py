@@ -6,6 +6,7 @@ import unittest
 from mock import patch, Mock
 
 import constants as c
+from conftest import SettingsDict
 from controller import Controller
 
 EVENT_TYPE = "event_type_foo"
@@ -63,7 +64,7 @@ class ControllerTest(unittest.TestCase):
         # Given, nothing
         mock_create_link.return_value = "a_link"
 
-        self.mock_wf.settings = {}
+        self.mock_wf.settings = SettingsDict()
         controller = Controller(self.mock_wf)
 
         # When
@@ -71,15 +72,15 @@ class ControllerTest(unittest.TestCase):
 
         # Then
         event_count = self.mock_wf.settings[c.CONF_EVENT_STATS][EVENT_TYPE]
-        self.assertEquals(event_count, 1)
+        self.assertEqual(event_count, 1)
 
     @patch("calendly_client.CalendlyClient.create_link")
     def test_given_stats_exist_when_create_single_use_link_then_count_is_one(self, mock_create_link):
         # Given
         mock_create_link.return_value = "a_link"
-        self.mock_wf.settings = {
+        self.mock_wf.settings = SettingsDict({
             c.CONF_EVENT_STATS: {"foo": 42}
-        }
+        })
         controller = Controller(self.mock_wf)
 
         # When
@@ -87,15 +88,15 @@ class ControllerTest(unittest.TestCase):
 
         # Then
         event_count = self.mock_wf.settings[c.CONF_EVENT_STATS][EVENT_TYPE]
-        self.assertEquals(event_count, 1)
+        self.assertEqual(event_count, 1)
 
     @patch("calendly_client.CalendlyClient.create_link")
     def test_given_event_type_exists_in_stats_when_create_single_use_link_then_count_increments(self, mock_create_link):
         # Given
         mock_create_link.return_value = "a_link"
-        self.mock_wf.settings = {
+        self.mock_wf.settings = SettingsDict({
             c.CONF_EVENT_STATS: {EVENT_TYPE: 42}
-        }
+        })
         controller = Controller(self.mock_wf)
 
         # When
@@ -103,15 +104,15 @@ class ControllerTest(unittest.TestCase):
 
         # Then
         event_count = self.mock_wf.settings[c.CONF_EVENT_STATS][EVENT_TYPE]
-        self.assertEquals(event_count, 43)
+        self.assertEqual(event_count, 43)
 
     @patch("calendly_client.CalendlyClient.get_all_event_types_of_user")
     def test_given_no_event_types_when_get_event_types_then_empty_list_returns(self, mock_get_all_event_types_of_user):
         # Given, nothing
         mock_get_all_event_types_of_user.return_value = []
-        self.mock_wf.settings = {
+        self.mock_wf.settings = SettingsDict({
             c.CONF_EVENT_STATS: None
-        }
+        })
         controller = Controller(self.mock_wf)
 
         # When
@@ -123,9 +124,9 @@ class ControllerTest(unittest.TestCase):
     @patch("calendly_client.CalendlyClient.get_all_event_types_of_user")
     def test_given_event_types_but_no_stats_when_get_ordered_event_types_then_original_list_returns(self, mock_get_all_event_types_of_user):
         mock_get_all_event_types_of_user.return_value = THREE_EVENT_TYPES
-        self.mock_wf.settings = {
+        self.mock_wf.settings = SettingsDict({
             c.CONF_EVENT_STATS: None
-        }
+        })
 
         controller = Controller(self.mock_wf)
 
@@ -137,9 +138,9 @@ class ControllerTest(unittest.TestCase):
     @patch("calendly_client.CalendlyClient.get_all_event_types_of_user")
     def test_given_event_types_and_stats_when_get_ordered_event_types_then_ordered_list_returns(self, mock_get_all_event_types_of_user):
         mock_get_all_event_types_of_user.return_value = THREE_EVENT_TYPES
-        self.mock_wf.settings = {
+        self.mock_wf.settings = SettingsDict({
             c.CONF_EVENT_STATS: EVENT_STATS
-        }
+        })
 
         controller = Controller(self.mock_wf)
 
