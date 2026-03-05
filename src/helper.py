@@ -8,5 +8,5 @@ def reset_workflow_config(wf):
         wf.clear_settings()
         wf.clear_cache()
         wf.delete_password(c.ACCESS_TOKEN)
-    except:
+    except Exception:
         pass

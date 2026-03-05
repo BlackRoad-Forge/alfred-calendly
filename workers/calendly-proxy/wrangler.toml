@@ -1,0 +1,14 @@
+name = "calendly-proxy"
+main = "src/index.js"
+compatibility_date = "2024-01-01"
+
+[vars]
+CALENDLY_API_BASE = "https://api.calendly.com"
+ALLOWED_ORIGINS = "*"
+
+# Rate limiting
+# [unsafe.bindings]
+# Uncomment below to enable KV for rate limiting
+# [[kv_namespaces]]
+# binding = "RATE_LIMIT"
+# id = "<your-kv-namespace-id>"

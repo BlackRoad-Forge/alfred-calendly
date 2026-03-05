@@ -117,7 +117,7 @@ def main(wf):
             )
         else:
 
-            sorted_event_types = sorted(event_types, key=lambda event_type: event_type["event_stats"] if "event_stats" in event_type else None, reverse=True)
+            sorted_event_types = sorted(event_types, key=lambda event_type: event_type["event_stats"] if "event_stats" in event_type else -1, reverse=True)
 
             for event_type in sorted_event_types:
                 wf.add_item(

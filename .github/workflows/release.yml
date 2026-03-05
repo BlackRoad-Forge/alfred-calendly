@@ -1,0 +1,46 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build and Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Set up Python
+        uses: actions/setup-python@42375524e23c412d93fb67b49958b491fce71c38 # v5.4.0
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mock pytest
+
+      - name: Run tests
+        working-directory: src
+        run: python -m pytest calendly_client_test.py controller_test.py -v
+
+      - name: Build workflow
+        run: |
+          cd src
+          zip ../calendly.alfredworkflow . -r \
+            --exclude=*.DS_Store* \
+            --exclude=*.pyc* \
+            --exclude=.pytest* \
+            --exclude=*_test.py
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@7b4da11513bf3f43f9999e90eabced41ab8f3c11 # v2.2.1
+        with:
+          files: calendly.alfredworkflow
+          generate_release_notes: true

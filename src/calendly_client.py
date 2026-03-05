@@ -14,7 +14,7 @@ def active_filter(event_type):
 
 
 class CalendlyClient:
-    def __init__(self,access_token):
+    def __init__(self, access_token):
         self.access_token = access_token
 
     def get_event_types_of_user(self, user, page_token=None):
@@ -63,7 +63,7 @@ class CalendlyClient:
                 page_token = match_page_token.group(1)
 
         if the_filter is not None:
-            event_types = filter(the_filter, event_types)
+            event_types = list(filter(the_filter, event_types))
 
         return event_types
 

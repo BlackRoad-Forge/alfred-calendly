@@ -27,5 +27,5 @@ def migrate_1_x_x_to_2_x_x(wf):
         wf.delete_password("calendly_alfred_client_secret")
         wf.delete_password("calendly_alfred_access_token")
         wf.delete_password("calendly_alfred_refresh_token")
-    except:
+    except Exception:
         pass

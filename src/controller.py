@@ -55,7 +55,10 @@ class Controller:
                 if needle["uri"] == event_stats_item[0]:
                     unordered_event_types[i]["event_stats"] = event_stats_item[1]
 
-        ordered_event_types = sorted(unordered_event_types, key=lambda event_type: event_type["event_stats"] if "event_stats" in event_type else None, reverse=True)
+        def sort_key(event_type):
+            return event_type["event_stats"] if "event_stats" in event_type else -1
+
+        ordered_event_types = sorted(unordered_event_types, key=sort_key, reverse=True)
 
         return ordered_event_types
 
@@ -81,5 +84,3 @@ class Stats:
 
     def get_stats(self):
         return self.wf.settings[c.CONF_EVENT_STATS]
-
-
